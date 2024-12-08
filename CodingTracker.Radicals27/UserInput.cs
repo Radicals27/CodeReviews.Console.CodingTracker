@@ -97,8 +97,6 @@ namespace coding_tracker
 
             string? numberInput = Console.ReadLine();
 
-            if (numberInput == "0") return null;
-
             while (!Int32.TryParse(numberInput, out _) || Convert.ToInt32(numberInput) < 0)
             {
                 Console.WriteLine("\n\nInvalid number. Try again.\n\n");

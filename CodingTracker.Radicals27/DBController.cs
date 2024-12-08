@@ -35,12 +35,6 @@ namespace coding_tracker
             using (var connection = new SqliteConnection(completeConnectionString))
             {
                 connection.Open();
-
-                // Uncomment this code to delete the table (for debugging)
-                // var dropCmd = connection.CreateCommand();
-                // dropCmd.CommandText = "DROP TABLE IF EXISTS hours_played";
-                // dropCmd.ExecuteNonQuery();
-
                 var tableCmd = connection.CreateCommand();
 
                 tableCmd.CommandText =
@@ -69,6 +63,9 @@ namespace coding_tracker
 
         internal static void SeedDatabase(SqliteConnection connection)
         {
+            Console.Clear();
+            Console.WriteLine("Please wait, seeding database on first initialisation (up to 20 seconds...)");
+
             var random = new Random();
             var insertCmd = connection.CreateCommand();
             var numberOfRecords = 100;
@@ -154,6 +151,12 @@ namespace coding_tracker
 
             var recordId = UserInput.GetNumberInput("\n\nPlease type the Id of the record you want to delete or type 0 to go back to Main Menu\n\n");
 
+            if (recordId == 0)
+            {
+                Console.Clear();
+                return;
+            }
+
             using (var connection = new SqliteConnection(completeConnectionString))
             {
                 connection.Open();
@@ -165,13 +168,17 @@ namespace coding_tracker
 
                 if (rowCount == 0)
                 {
-                    Console.WriteLine($"\n\nRecord with Id {recordId} doesn't exist. \n\n");
+                    Console.WriteLine($"\n\nRecord with Id {recordId} doesn't exist. Press any key to try again...\n\n");
+                    Console.ReadKey();
+                    connection.Close();
                     Delete();
+                    return;
                 }
             }
 
             Console.Clear();
-            Console.WriteLine($"\n\nRecord with Id {recordId} was deleted. \n\n");
+            Console.WriteLine($"\n\nRecord with Id {recordId} was deleted. Press any key to continue...\n\n");
+            Console.ReadKey();
         }
 
         internal static void Update()
@@ -179,6 +186,12 @@ namespace coding_tracker
             GetAllRecords();
 
             var recordId = UserInput.GetNumberInput("\n\nPlease type Id of the record would like to update. Type 0 to return to main manu.\n\n");
+
+            if (recordId == 0)
+            {
+                Console.Clear();
+                return;
+            }
 
             using (var connection = new SqliteConnection(completeConnectionString))
             {
@@ -189,8 +202,10 @@ namespace coding_tracker
 
                 if (checkQueryResult == 0)
                 {
-                    Console.WriteLine($"\n\nRecord with Id {recordId} doesn't exist.\n\n");
-                    Update(); // If the record doesn't exist, call Update again (or handle accordingly)
+                    Console.WriteLine($"\n\nRecord with Id {recordId} doesn't exist. Press any key to try again...\n\n");
+                    Console.ReadKey();
+                    connection.Close();
+                    Update();
                     return;
                 }
 
@@ -213,11 +228,15 @@ namespace coding_tracker
 
                 if (affectedRows > 0)
                 {
-                    Console.WriteLine("Record updated successfully.");
+                    Console.WriteLine("Record updated successfully, press any key to continue...");
+                    Console.ReadKey();
                 }
                 else
                 {
-                    Console.WriteLine("Failed to update the record.");
+                    Console.WriteLine("Failed to update the record, press any key to try again...");
+                    Console.ReadKey();
+                    Update();
+                    return;
                 }
 
                 connection.Close();
@@ -252,6 +271,7 @@ namespace coding_tracker
                 connection.Close();
             }
 
+            Console.Clear();
             Console.WriteLine($"The habit was performed {codingSessionCount} times in {yearInput}.");
         }
 
