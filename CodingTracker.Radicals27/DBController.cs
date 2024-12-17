@@ -30,14 +30,22 @@ namespace coding_tracker
             }
         }
 
+        internal static void DeleteTable()
+        {
+            using var connection = new SqliteConnection(completeConnectionString);
+            string sql = $"DROP TABLE IF EXISTS hours_played";
+            connection.Execute(sql);
+        }
+
         internal static void InitialiseDB()
         {
             using var connection = new SqliteConnection(completeConnectionString);
+
             var createSql = @"CREATE TABLE IF NOT EXISTS hours_played (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            Date DATE,
-            StartTime INTEGER,
-            EndTime INTEGER
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Date DATE,
+                StartTime INTEGER,
+                EndTime INTEGER
             )";
 
             connection.Execute(createSql);
@@ -68,14 +76,14 @@ namespace coding_tracker
             for (int i = 0; i < numberOfRecords; i++)
             {
                 string randomDate = GenerateRandomDate(random);
-                DateTime parsedDate = DateTime.ParseExact(randomDate, "dd-MM-yy", CultureInfo.InvariantCulture);
+                DateTime parsedDate = DateTime.ParseExact(randomDate, "dd-MM-yy", new CultureInfo("en-US"));
 
                 int randomStartHour = random.Next(minStartTime, maxStartTime);
                 int randomStartMinute = random.Next(0, maxMinutes);
-                DateTime startTime = new DateTime(1, 1, 1, randomStartHour, randomStartMinute, 0);
+                TimeOnly startTime = new TimeOnly(randomStartHour, randomStartMinute, 0);
                 int randomDurationMinutes = random.Next(minDuration, maxDuration);
 
-                DateTime endTime = startTime.AddMinutes(randomDurationMinutes);
+                TimeOnly endTime = startTime.AddMinutes(randomDurationMinutes);
 
                 int formattedStartTime = int.Parse(startTime.ToString("HHmm"));
                 int formattedEndTime = int.Parse(endTime.ToString("HHmm"));
@@ -269,7 +277,8 @@ namespace coding_tracker
         {
             DateTime startDate = DateTime.Now.AddYears(-1); // Start date: 1 year ago
             int range = (DateTime.Now - startDate).Days;
-            return startDate.AddDays(random.Next(range)).ToString("dd-MM-yy");
+            DateOnly newDate = DateOnly.FromDateTime(startDate);
+            return newDate.AddDays(random.Next(range)).ToString("dd-MM-yy");
         }
 
         internal static void StartNewSession(bool _start)

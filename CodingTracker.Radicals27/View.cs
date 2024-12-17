@@ -43,7 +43,7 @@ namespace coding_tracker
                 string formattedStartTime = dw.StartTime.ToString("D4");  // Format to 4 digits with leading zero
                 string formattedEndTime = dw.EndTime.ToString("D4");
 
-                table.AddRow($"{dw.Id} - {dw.Date.ToString("dd-MMM-yyyy")} - S: {formattedStartTime}, E: {formattedEndTime}, Duration: {dw.Duration} minutes");
+                table.AddRow($"{dw.Id} - {dw.Date.ToString("dd-MM-yy")} - S: {formattedStartTime}, E: {formattedEndTime}, Duration: {dw.Duration} minutes");
             }
 
             AnsiConsole.Write(table);

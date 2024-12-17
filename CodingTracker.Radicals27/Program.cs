@@ -13,6 +13,8 @@ namespace coding_tracker
 
         static void Main(string[] args)
         {
+
+            DBController.DeleteTable();
             DBController.InitialiseDB();
             AppFlow();
         }
