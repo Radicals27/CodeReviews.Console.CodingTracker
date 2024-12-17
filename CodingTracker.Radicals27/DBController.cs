@@ -32,32 +32,22 @@ namespace coding_tracker
 
         internal static void InitialiseDB()
         {
-            using (var connection = new SqliteConnection(completeConnectionString))
+            using var connection = new SqliteConnection(completeConnectionString);
+            var createSql = @"CREATE TABLE IF NOT EXISTS hours_played (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Date DATE,
+            StartTime INTEGER,
+            EndTime INTEGER
+            )";
+
+            connection.Execute(createSql);
+
+            var checkSql = @"SELECT COUNT(*) FROM hours_played";
+            var count = connection.QuerySingle<int>(checkSql);
+
+            if (count == 0)
             {
-                connection.Open();
-                var tableCmd = connection.CreateCommand();
-
-                tableCmd.CommandText =
-                    @"CREATE TABLE IF NOT EXISTS hours_playefod (
-                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        Date DATE,
-                        StartTime INTEGER,
-                        EndTime INTEGER
-                        )";
-
-                tableCmd.ExecuteNonQuery();
-
-                // Check if the table is empty, if so, seed it
-                var checkCmd = connection.CreateCommand();
-                checkCmd.CommandText = "SELECT COUNT(*) FROM hours_played";
-                var count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count == 0)
-                {
-                    SeedDatabase(connection);
-                }
-
-                connection.Close();
+                SeedDatabase(connection);
             }
         }
 
